@@ -18,6 +18,7 @@
 #include "tables.h"
 //#include "tables.c"
 #include "lmedit.h"
+#include "editor.h"
 /// function to print information
 ///
 /// @param char* file
@@ -34,8 +35,6 @@ int printInfo(char* file){
     printf("Module version:  2%03d/%02d/%02d\n",(table->version & 0xfe00)>>9,(table->version & 0x1e0)>>5,(table->version & 0x1f));
     /// print data sections
     printData();
-    /// print tables
-    //printTables();
     return 0;
 }
 
@@ -91,11 +90,6 @@ int printStart(){
     return 0;
 }
 
-/// main function for the program
-///
-/// @param argc  2
-/// @param argv  program name, file name
-/// @returns errorCode  the error Code; 0 if no error
 int main(int argc, char *argv[])
 {
     /// check arguments
@@ -118,13 +112,11 @@ int main(int argc, char *argv[])
     count = 1;
     /// loop until user enter "quit"
     while(1)
-    {   //print the fist section data info
+    {   //print the fist section data info "text[N] > "
         printStart();
-//
-//        if(editor() ==-1){
-//            break;
-//        }
-
+        if(getData() ==-1){
+            break;
+        }
         ++count;
     }
     return EXIT_SUCCESS;
