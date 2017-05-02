@@ -10,7 +10,6 @@
 #define LMEDIT_H
 
 #include "exec.h"
-//#include "header.h"
 //#include "tables.h"
 //#include "editor.h"
 
@@ -18,17 +17,17 @@
 exec_t * table;
 
 /// file to be read
-FILE* pFile;
+FILE* fp;
 
 int section; ///current section
 int count;   ///total count
 /// store data from text and data sections
-uint8_t* textdata;
+uint8_t* allData;
 
 /// tables to store data
-relent_t* relTable;
-refent_t* refTable;
-syment_t* symTable;
+relent_t* relT;
+refent_t* refT;
+syment_t* symT;
 char* str;
 
 /// function to print information

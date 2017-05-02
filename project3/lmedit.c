@@ -1,9 +1,9 @@
 /*
-**   lmedit.c
-**
-**   Edit R2000K Architecture Object
-**
-**   Author: Bikash Mainali
+ * This is the main c file to read the program. This c file runs the whole
+ * application.
+ *
+ * @author Bikash Mainali
+ *
 */
 
 #define _BSD_SOURCE
@@ -16,13 +16,9 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include "tables.h"
-//#include "tables.c"
 #include "lmedit.h"
-#include "editor.h"
-/// function to print information
-///
-/// @param char* file
-/// @returns 0 if no error
+#include "inputReader.h"
+
 int printInfo(char* file){    
     /// print file basic info
     if(table->entry == 0){//object module
@@ -30,29 +26,29 @@ int printInfo(char* file){
     }else{
         printf("File %s is an R2K load module  (entry point 0x%08x)\n",file,table->entry);
     }
-    
-    /// print module version
+    //0000111 1001 00010
+    //1111111 0000 00000 == 0xfe00 for year
+    //------------------
+    //0000111 0000 00000 >> 111 = 7
+    //0000000 1111 00000 == 0x1e0
+    //0000000 0000 11111 == 0x1f
     printf("Module version:  2%03d/%02d/%02d\n",(table->version & 0xfe00)>>9,(table->version & 0x1e0)>>5,(table->version & 0x1f));
     /// print data sections
     printData();
     return 0;
 }
 
-/// a function to analyze a R2K file
-///
-/// @param char* file
-/// @returns 0 if no error
 int readFile(char* file)
 {
-    pFile = fopen(file, "r+");
+    fp = fopen(file, "r+");
     
-    if (!pFile) 
+    if (!fp)
     { 
 		perror(file);
 		return 1;
 	}else{
-	    if(readFileHeader(file)==1){
-	        fclose(pFile);
+	    if(readHeader(file)==1){
+	        fclose(fp);
 	        return 1;
 	    }
 	    readTableData();
@@ -61,10 +57,6 @@ int readFile(char* file)
 	return 0;
 }
 
-/// main function for the program
-///
-/// @param void
-/// @returns 0 if no error
 int printStart(){
     if(section==0){//text
         printf("text[%d] >",count);
@@ -92,18 +84,15 @@ int printStart(){
 
 int main(int argc, char *argv[])
 {
-    /// check arguments
     if(argc<=1)
-    { /// if missing arguments, print error and exit
+    {
         fprintf(stderr, "usage: lmedit file\n");
         exit(EXIT_FAILURE);
     }
 
-    /// open each file and analyze if available
     for(int n=1;n<argc;++n)
     {
         table = malloc(sizeof(exec_t));
-        ///use analysis function
 	    if(readFile(argv[n]) == 1){
 	        return 1;
 	    }
@@ -112,7 +101,8 @@ int main(int argc, char *argv[])
     count = 1;
     /// loop until user enter "quit"
     while(1)
-    {   //print the fist section data info "text[N] > "
+    {
+        //print the fist section data info "text[N] > "
         printStart();
         if(getData() ==-1){
             break;

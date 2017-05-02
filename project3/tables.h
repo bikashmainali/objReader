@@ -1,66 +1,60 @@
 /*
-**   tables.h
-**
-**   Read tables and store info in relent, refent, and syment respectively.
-**
-**   Also, provide a function to print tables information
-**
-**   Author: Bikash Mainali
+ * This c file contains all the function related to table.
+ * It read data data print specific data
+ *
+ * @author Bikash Maianli
+ *
 */
 
 #ifndef TABLES_H
 #define TABLES_H
 // need for relent_t, refent_t and syment_t
 #include "exec.h"
-// used for differnt variable declared in lmedit.h
+// used for different variable declared in lmedit.h
 #include "lmedit.h"
 
-/// print data info in header
-///
-/// @param void
-/// @returns 0 if no error
-int printrel(relent_t);
+/**
+ * print information of given relocation table
+ */
+void printrel(relent_t);
 
-/// print data info in header
-///
-/// @param void
-/// @returns 0 if no error
+/**
+ * print information of the given reference table
+ * @return 0 if the print is successful
+ */
 int printref(refent_t);
 
-/// print data info in header
-///
-/// @param void
-/// @returns 0 if no error
+/**
+ * print information of the given symbol table
+ * @return 0 if the print is successful
+ */
 int printsym(syment_t);
 
-/// print data info in header
-///
-/// @param void
-/// @returns 0 if no error
-int printTables();
-
-/// free dynamical allocation
-///
-/// @param void
-/// @returns 0 if no error
+/**
+ * free all dynamically allocated table.
+ * @return 0 if all the free is suceeful
+ */
 int freeTables();
 
-/// a function to analysis Header
-///
-/// @param void
-/// @returns 0 if no error
+/**
+ * read all the table data. It reads all data from the file given.
+ * @return 0 after reading all the input or data from the file.
+ */
 int readTableData();
 
-/// print data info in header
-///
-/// @param void
-/// @returns 0 if no error
-int printData();
+/**
+ * print data of the given file. This prints all table information table. like data, rdata,
+ * symboltable, reference table, relocation table, sbss bss
+ *
+ */
+void printData();
 
-/// a function to analysis Header
-///
-/// @param char* file
-/// @returns 0 if no error
-int readFileHeader(char* file);
+/**
+ * this method read head of the given file this method read magic number, convert date,
+ * and read other information.
+ * @param file to read from
+ * @return return 1 if error exists( if magic number is not 0xface ) otherwise 0
+ */
+int readHeader(char* file);
 
 #endif
