@@ -13,6 +13,7 @@
 // used for different variable declared in lmedit.h
 #include "lmedit.h"
 
+int readIndex;
 /**
  * print information of given relocation table
  */

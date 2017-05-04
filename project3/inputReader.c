@@ -9,6 +9,78 @@
 #include <stdint.h>
 #include "inputReader.h"
 
+/// function for putting a new history in history array
+///
+/// @param void
+/// @returns 0 if no error
+static int addHistory()
+{
+    //check if history array is full of his
+    if((history[9].count) ){  //if entries is full
+        for(int i=0;i<9;i++){
+            strcpy(history[i].data,history[i+1].data);
+            history[i].count = history[i+1].count;
+        }
+        history[9].count = count;
+        strcpy(history[9].data,buf);
+        return 0;
+    }
+    //if not full, find a empty entry and put info in it
+    for(int i=0;i<10;i++){
+        if(! (history[i].count) ){
+            history[i].count = count;
+            strcpy(history[i].data,buf);
+            return 0;
+        }
+    }
+    return 0;
+}
+
+static int printHistory(){
+    for(int i=0;i<10;i++){
+        if((history[i].count) ){
+            printf("%3d   %s",history[i].count,history[i].data);
+        }
+    }
+    printf("\n");
+    return 0;
+}
+
+/// function for repeating a particular history
+///
+/// @param void
+/// @returns 0 if no error
+static int repeatHistory(int in){
+    /// if no long in history (in < history[0].index)
+    if(in < history[0].count){
+        fprintf( stderr, "error:  command %d is no longer in the command history\n", in);
+        return -1;
+    }
+    /// if no long in history (in > history[8].index)
+    int max=0;
+    for(int i=0;i<10;i++){
+        if((history[i].count)){
+            max = i;
+        }
+    }
+    ///printf("max:%d\n",max);
+    if(in > history[max].count){
+        fprintf( stderr, "error:  command %d has not yet been entered\n", in);
+        return -1;
+    }
+    /// otherwise, repeat command
+    for(int i=0;i<10;i++){
+        if(history[i].count == in){
+            strcpy(buf,history[i].data);
+        }
+    }
+    /// print
+    ++count;
+    printStart();
+    printf("%s",buf);
+    return 0;
+}
+
 static int printTable(int type, int number, int index) {
     if (type == 6) {
         for (int i = 0; i < number; i++) {
@@ -79,7 +151,8 @@ static int analyse() {
         }
         fprintf(stderr, "error:  '-1' is not a valid address\n");
         return 1;
-    }    /// 0:h - Print a 16-bit halfword starting at location 0   (A:T)
+    }
+    // 0:h - Print a 16-bit halfword starting at location 0   (A:T)
     else if ((Aindex!= nul) && (NCount == nul) && (Ttype != nul) && (VRepValue == nul)) {
         ///===========table section below=============
         if ((section == 6) || (section == 7) || (section == 8)) {
@@ -108,7 +181,6 @@ static int analyse() {
             ///printf("T:%d\n",T);
             printallData(index, 1, (int) Ttype);
         }
-
         return 0;
     }
     else if ((Aindex!= nul) && (NCount == nul) && (Ttype == nul) && (VRepValue == nul)) {
@@ -255,7 +327,18 @@ static int analyse() {
         }
         numByteToWrite = 1;
         canWrite = 1;
-        wType = 3; ///full words
+        wType = 3; ///full words0,2
+        int index =0;
+        for (int i = 0; i < section; i++) {
+            index += (int) table->data[i];
+        }
+        printf("original value : %08x\n",wValue);//0x00000002
+        index = (index + (int)Aindex);
+        printf("index : %d", index);
+        *(allData + index) = (wValue&0xff000000)>> 24;
+        *(allData + index + 1) = (wValue&0x000ff0000)>> 16;
+        *(allData + index + 2) = (wValue&0x00000ff00)>> 8;
+        *(allData + index + 3) = (wValue&0x0000000ff);
         printf("   0x%08x is now 0x%08x\n", wAddress, wValue);
         return 0;
     }
@@ -293,14 +376,17 @@ static int analyse() {
             wType = 1;
             uint32_t tempadd = wAddress;
             for (int i = 0; i < numByteToWrite; i++) {
-                printf("   0x%02x is now 0x%02x\n", tempadd, wValue);
+                *(allData + Aindex  + i ) = wValue;
+                printf("   0x%08x is now 0x%02x\n", tempadd, wValue);
                 tempadd += 1;
             }
         } else if (Ttype == 2) {///half
             wType = 2;
             wIndex += 1;
             uint32_t tempadd = wAddress;
-            for (int i = 0; i < numByteToWrite; i++) {
+            for (int i = 0; i < numByteToWrite*2;) {
+                *(allData + Aindex  + i++ ) = wValue&0xff00;
+                *(allData + Aindex  + i++ ) = wValue&0x00ff;
                 printf("   0x%04x is now 0x%04x\n", tempadd, wValue);
                 tempadd += 4;
             }
@@ -308,8 +394,12 @@ static int analyse() {
             wType = 3;
             wIndex += 3;
             uint32_t tempadd = wAddress;
-            for (int i = 0; i < numByteToWrite; i++) {
-                printf("   0x%08x is now 0x%08x\n", tempadd, wValue);
+            for (int i = 0; i < numByteToWrite * 4; i++) {
+                *(allData + Aindex  + i++ ) = ((wValue & 0xff000000)>>24);
+                *(allData + Aindex  + i++ ) = ((wValue & 0x00ff0000)>>16);
+                *(allData + Aindex  + i++ ) = ((wValue & 0x0000ff00)>>8);
+                *(allData + Aindex  + i ) = wValue & 0x000000ff;
+              printf("   0x%08x is now 0x%08x\n", tempadd, wValue);
                 tempadd += 4;
             }
         }
@@ -370,6 +460,11 @@ int readElseCaseData(){
     sscanf(buf, "%*[^,], %*[^=]= %s %*[^\n]\n", V);
     sscanf(buf, "%*[^=]= %s %*[^\n]\n", V);
     sscanf(buf, "%*[^,], %*[^:]: %c %*[^\n]\n", T);
+    printf("A: %s", A);
+    printf("N: %s", N);
+    printf("V: %s", V);
+    printf("T: %s\n", T);
+
     // case A
     if (table->entry) {/// load module
         if (sscanf(A, "%X", &Aindex) == 1) {
@@ -486,29 +581,13 @@ int printSize() {
 
 int writeFunction() {
     if (canWrite) {
-            if (wType == 3) {
-                for (int i = 0; i < numByteToWrite; i++) {
-                    fseek(fp, wIndex, SEEK_SET);
-                    fwrite(&wValue, 1, 1, fp);
-                    freeTables();
-                    fseek(fp, sizeof(exec_t), SEEK_SET);
-                    readTableData();
-                    Aindex += 4;
-                }
-                canWrite = 0; /// make no writable after writing
-            } else if (wType == 1) {
-                for (int i = 0; i < numByteToWrite; i++) {
-                    ///printf("   0x%02x is now 0x%02x\n",wAddress,wValue);
-                    fseek(fp, wIndex, SEEK_SET);
-                    fwrite(&wValue, 1, 1, fp);
-                    freeTables();
-                    fseek(fp, sizeof(exec_t), SEEK_SET);
-                    readTableData();
-                    Aindex += 1;
-                }
-                canWrite = 0; /// make no writable after writing
-            }
-        }
+//        for (int i = 0; i < numByteToWrite; i++) {
+            fseek(fp, readIndex, SEEK_SET);
+            fwrite(&allData, sizeof(uint8_t), sizeof(allData), fp);
+//        }
+        canWrite = 0; /// make no writable after writing
+
+    }
     return 0;
 }
 
@@ -596,15 +675,29 @@ int getData() {
             return -1;
         }
     }
+    int number;
     if (sscanf(buf, "section %s", sect) == 1) {
+        addHistory();
         return sectionFunction();
     } else if (strncmp(buf, "quit", 4) == 0) {
+        addHistory();
         return quitFunction();
     }else if (strncmp(buf, "write",5) == 0) {
+        addHistory();
         return writeFunction();
     } else if (strncmp(buf, "size", 4) == 0) {
+        addHistory();
         return printSize();
-    } else {
+    }else if (strncmp(buf, "history",7) ==0){
+        addHistory();
+        printHistory();
+        return 0;
+    } else if (sscanf(buf,"!%X",&number)){
+        addHistory();
+        repeatHistory(number);
+        return 0;
+    }else {
+        addHistory();
         return elseCaseFunction();
     }
 }
