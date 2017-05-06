@@ -1,7 +1,6 @@
-/*
+/**
  * This is the main c file to read the program. This c file runs the whole
  * application.
- *
  * @author Bikash Mainali
  *
 */
@@ -82,6 +81,14 @@ int printStart(){
     return 0;
 }
 
+/**
+ * this program read the command line.
+ * if proper file is given it read and analyse the data in the file and allow to do different task in the that file.
+ * it is the stating point of the program
+ * @param argc number of argument count
+ * @param argv arguments of the program
+ * @return EXIT_FAILURE if program failed. else EXIT_SUCCESS.
+ */
 int main(int argc, char *argv[])
 {
     if(argc<=1)

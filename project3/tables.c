@@ -52,7 +52,7 @@ int printsym(syment_t sym) {
 int freeTables() {
     if (allData) {
         free(allData);
-        allData = NULL;
+      //  allData = NULL;
     }
     if (relT) {
         free(relT);
@@ -79,7 +79,7 @@ int readTableData() {
     int size = (int) (table->data[0] + table->data[1] + table->data[2] +
                       table->data[3] + table->data[4] + table->data[5]);
     // all data for respective fields like text, rdata, and all
-    readIndex = size+ sizeof(table);
+    readIndex = size + sizeof(table);
     allData = malloc(size * sizeof(uint8_t));
     fread(allData, size, 1, fp);
 

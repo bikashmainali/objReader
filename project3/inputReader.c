@@ -8,12 +8,16 @@
 #include <string.h>
 #include <stdint.h>
 #include "inputReader.h"
+#define _BSD_SOURCE
+#include <endian.h>
+#include <math.h>
+#include <stdlib.h>
+#include "tables.h"
 
-/// function for putting a new history in history array
-///
-/// @param void
-/// @returns 0 if no error
-static int addHistory()
+/**
+ * add command given to the history
+ */
+static void addHistory()
 {
     //check if history array is full of his
     if((history[9].count) ){  //if entries is full
@@ -23,38 +27,42 @@ static int addHistory()
         }
         history[9].count = count;
         strcpy(history[9].data,buf);
-        return 0;
+        return;
     }
     //if not full, find a empty entry and put info in it
     for(int i=0;i<10;i++){
         if(! (history[i].count) ){
             history[i].count = count;
             strcpy(history[i].data,buf);
-            return 0;
+            return;
         }
     }
-    return 0;
+    return;
 }
 
-static int printHistory(){
+/**
+ * print 10 last history fom our history array
+ */
+static void printHistory(){
     for(int i=0;i<10;i++){
         if((history[i].count) ){
             printf("%3d   %s",history[i].count,history[i].data);
         }
     }
     printf("\n");
-    return 0;
+    return;
 }
 
-/// function for repeating a particular history
-///
-/// @param void
-/// @returns 0 if no error
-static int repeatHistory(int in){
+/**
+ * print the history number given. If the number is in the history, print
+ * that command in the history else give user error message.
+ * @param in number to print.
+ */
+static void repeatHistory(int in){
     /// if no long in history (in < history[0].index)
     if(in < history[0].count){
         fprintf( stderr, "error:  command %d is no longer in the command history\n", in);
-        return -1;
+        return;
     }
     /// if no long in history (in > history[8].index)
     int max=0;
@@ -66,7 +74,7 @@ static int repeatHistory(int in){
     ///printf("max:%d\n",max);
     if(in > history[max].count){
         fprintf( stderr, "error:  command %d has not yet been entered\n", in);
-        return -1;
+        return;
     }
     /// otherwise, repeat command
     for(int i=0;i<10;i++){
@@ -78,62 +86,67 @@ static int repeatHistory(int in){
     ++count;
     printStart();
     printf("%s",buf);
-    return 0;
+    return;
 }
 
-static int printTable(int type, int number, int index) {
+/**
+ * print he table based on the different.
+ * @param type  section to print
+ * @param number number of times to print
+ * @param index index to start print from
+ * @return
+ */
+static void printTable(int type, int number, int index) {
     if (type == 6) {
         for (int i = 0; i < number; i++) {
             printrel(relT[index]);
             index++;
         }
-    }
-    if (type == 7) {
+    } else if (type == 7) {
         for (int i = 0; i < number; i++) {
             printref(refT[i]);
             index++;
         }
-    }
-    if (type == 8) {
+    } else if (type == 8) {
         for (int i = 0; i < number; i++) {
             printsym(symT[i]);
             index++;
         }
     }
-    return 0;
+    return;
 }
 
-/// function for printing text and data sections
-///
-/// @param int type( 1 (b), 2(h), 3(w) ), int number, int index
-/// @returns 0 if no error
-static int printallData(int index, int number, int type) {
+/**
+ * function to print data from
+ * @param index it is number to start printing from
+ * @param number number of times to print
+ * @param type types to print it is b,h,w which is 1,2,3 respectively
+ */
+static void printallData(int index, int number, int type) {
     if (type == 1) { //byte
         for (int i = 0; i < number; i++) {
-            printf("   0x%08x = 0x%02x\n", Aaddress, allData[index]);
-            index += 1;
+            printf("   0x%08x = 0x%02x\n", Aaddress, allData[index++]);
+            //index += 1;
             Aaddress += 2;
         }
-    }
-    if (type == 2) { //half word - 2bytes
+    } else  if (type == 2) { //half word - 2bytes
         for (int i = 0; i < number; i++) {
-            printf("   0x%08x = 0x%02x", Aaddress, allData[index]);
-            printf("%02x\n", allData[index + 1]);
-            index += 2;
+            printf("   0x%08x = 0x%02x", Aaddress, allData[index++]);
+            printf("%02x\n", allData[index++]);
+            //index += 2;
             Aaddress += 2;
         }
-    }
-    if (type == 3) { //word - 4bytes
+    } else if (type == 3) { //word - 4bytes
         for (int i = 0; i < number; i++) {
-            printf("   0x%08x = 0x%02x", Aaddress, allData[index]);
-            printf("%02x", allData[index + 1]);
-            printf("%02x", allData[index + 2]);
-            printf("%02x\n", allData[index + 3]);
-            index += 4;
+            printf("   0x%08x = 0x%02x", Aaddress, allData[index++]);
+            printf("%02x", allData[index++]);
+            printf("%02x", allData[index++]);
+            printf("%02x\n", allData[index++]);
+            //index += 4;
             Aaddress += 4;
         }
     }
-    return 0;
+    return;
 }
 
 /**
@@ -158,7 +171,7 @@ static int analyse() {
         if ((section == 6) || (section == 7) || (section == 8)) {
             fprintf(stderr, "error:  ':%s' is not valid in table sections\n",
                     T);
-            return 1;
+            return 0;
         }
         ///===========text and data sections below====
         int a = (int) Aindex;
@@ -167,7 +180,7 @@ static int analyse() {
         if ((a < 0) || (a >= (int) table->data[section])) {
             sscanf(A, "%s", sect);
             fprintf(stderr, "error:  '%s' is not a valid address\n", sect);
-            return 1;
+            return 0;
         }
 
         if ((section == 0) || (section == 1) || (section == 2) ||
@@ -194,7 +207,7 @@ static int analyse() {
                 fprintf(stderr, "error:  '%s' is not a valid address\n", sect);
                 return 1;
             }
-            printTable((int) section, 1, (int) Aindex); /// type, number, index
+            printTable((int) section, 1, (int) Aindex);
             return 0;
         }
 
@@ -203,7 +216,7 @@ static int analyse() {
         if ((a < 0) || (a >= ((int) table->data[section]) - 3)) {
             sscanf(A, "%s", sect);
             fprintf(stderr, "error:  '%s' is not a valid address\n", sect);
-            return 1;
+            return 0;
         }
 
         if ((section == 0) || (section == 1) || (section == 2) ||
@@ -229,7 +242,7 @@ static int analyse() {
             if ((a < 0) || (a > ((int) table->data[section]))) {
                 sscanf(A, "%s", sect);
                 fprintf(stderr, "error:  '%s' is not a valid address\n", sect);
-                return 1;
+                return 0;
             }
             if ((a < 0) || (a + n > ((int) table->data[section]))) {
                 fprintf(stderr, "error:  '%d' is not a valid count\n", NCount);
@@ -332,9 +345,7 @@ static int analyse() {
         for (int i = 0; i < section; i++) {
             index += (int) table->data[i];
         }
-        printf("original value : %08x\n",wValue);//0x00000002
         index = (index + (int)Aindex);
-        printf("index : %d", index);
         *(allData + index) = (wValue&0xff000000)>> 24;
         *(allData + index + 1) = (wValue&0x000ff0000)>> 16;
         *(allData + index + 2) = (wValue&0x00000ff00)>> 8;
@@ -443,7 +454,11 @@ static int analyse() {
         wType = 3; ///full
 
         uint32_t tempadd = wAddress;
-        for (int i = 0; i < numByteToWrite; i++) {
+        for (int i = 0; i < numByteToWrite * 4; i++) {
+            *(allData + Aindex  + i++ ) = ((wValue & 0xff000000)>>24);
+            *(allData + Aindex  + i++ ) = ((wValue & 0x00ff0000)>>16);
+            *(allData + Aindex  + i++ ) = ((wValue & 0x0000ff00)>>8);
+            *(allData + Aindex  + i ) = wValue & 0x000000ff;
             printf("   0x%08x is now 0x%08x\n", tempadd, wValue);
             tempadd += 4;
         }
@@ -451,6 +466,11 @@ static int analyse() {
     return 0;
 }
 
+/**
+ * it read all the data provided by the user for else case.
+ * It also returns friendly message if the value provided are invalid
+ * @return -1 after print invalid option or 0 after completion of program
+ */
 int readElseCaseData(){
     strcpy(A,"");strcpy(N,"");strcpy(T,"");strcpy(V,"");
     Aindex= -1; NCount=-1; Ttype=-1; VRepValue=-1;
@@ -460,10 +480,6 @@ int readElseCaseData(){
     sscanf(buf, "%*[^,], %*[^=]= %s %*[^\n]\n", V);
     sscanf(buf, "%*[^=]= %s %*[^\n]\n", V);
     sscanf(buf, "%*[^,], %*[^:]: %c %*[^\n]\n", T);
-    printf("A: %s", A);
-    printf("N: %s", N);
-    printf("V: %s", V);
-    printf("T: %s\n", T);
 
     // case A
     if (table->entry) {/// load module
@@ -517,6 +533,10 @@ int readElseCaseData(){
     return 0;
 }
 
+/**
+ * this funciton add starting value to the address if the address contain entry point
+ * @return 0 if the data given is invalid
+ */
 int elseCaseFunction(){
     /// initilization
     if (readElseCaseData() == -1){
@@ -563,6 +583,10 @@ int elseCaseFunction(){
     }
 }
 
+/**
+ * print the size of the section we are currently in.
+ * @return 0 after completion of program
+ */
 int printSize() {
     char *tab[10] = {"text", "rdata", "data", "sdata", "sbss", "bss",
                      "reltab",
@@ -579,42 +603,52 @@ int printSize() {
     return 0;
 }
 
+/**
+ * write the modified things to the file
+ * @return 0 after competion  of the program
+ */
 int writeFunction() {
     if (canWrite) {
-//        for (int i = 0; i < numByteToWrite; i++) {
+        int loop = sizeof(allData) / sizeof(uint8_t);
+        for (int i = 0; i < loop; i++) {
             fseek(fp, readIndex, SEEK_SET);
-            fwrite(&allData, sizeof(uint8_t), sizeof(allData), fp);
-//        }
+            fwrite(&allData, sizeof(uint8_t), 1, fp);
+            readIndex += sizeof(uint8_t);
+        }
         canWrite = 0; /// make no writable after writing
-
     }
     return 0;
 }
 
+/**
+ * Quit the program if user press yes after asking for input else return as nothing.
+ * @return 0 after printing that message
+ */
 int quitFunction() {
     if (canWrite) {
-            while (1) {
-                printf("Discard modifications (yes or no)?");
-                if (fgets(buf, 128, stdin) == NULL) {
-                    if (ferror(stdin)) { perror("error occurred in file"); }
-                }
-                if (strcmp(buf, "yes\n") == 0) {
-                    freeTables();
-                    fclose(fp);
-                    //everything is done. quit
-                    return -1;
-                }
-                //don't quit
-                if (strcmp(buf, "no\n") == 0) {
-                    return 0;
-                }
+        while (1) {
+            printf("Discard modifications (yes or no)?");
+            if (fgets(buf, 128, stdin) == NULL) {
+                if (ferror(stdin)) { perror("error occurred in file"); }
+            }
+            if (strcmp(buf, "yes\n") == 0) {
+                freeTables();
+                fclose(fp);
+                //everything is done. quit
+                return -1;
+            }else if (strcmp(buf, "no\n") == 0) {
+                return 0;
             }
         }
-    freeTables();
+    }
+    //freeTables();
     fclose(fp);
     return -1;
 }
-
+/**
+ * print section information to the user. information as soon as user enter different section.
+ * @return
+ */
 int sectionFunction() {
     if (strncmp(sect, "text", 4) == 0) {
             printf("Now editing section text\n");
@@ -665,6 +699,10 @@ int sectionFunction() {
     return 0;
 }
 
+/**
+ * reads user text and call function according to user commands.
+ * @return -1 if the input cannot be read properly or int quit case. else 0
+ */
 int getData() {
     /// get input
     if (fgets(buf, 128, stdin) == NULL) {

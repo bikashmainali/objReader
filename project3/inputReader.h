@@ -1,6 +1,7 @@
 /**
  * this class contains all the global variable , struct and function declaration need to read,
  * write and get commands from the user.
+ * @author Bikash Mainali
  */
 #ifndef INPUTREADER_H
 #define INPUTREADER_H
