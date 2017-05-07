@@ -1,4 +1,4 @@
-/*
+/**
  * This c file contains all the function related to table.
  * It read data data print specific data
  *
