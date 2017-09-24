@@ -1,0 +1,35 @@
+commit 32a00795ccd2fd3efa4f463c1666ba7c7ea3d552
+Author: bm7514 <bm7514@glados.cs.rit.edu>
+Date:   Sat May 6 21:33:39 2017 -0400
+
+    program comment complete
+
+commit 62bc5c602c6032710be18cbbd47adae256f8d73e
+Author: bm7514 <bm7514@glados.cs.rit.edu>
+Date:   Sat May 6 12:11:12 2017 -0400
+
+    all done. Try also complete
+
+commit 65844a06a78335d539cc6766b4e678649ed523af
+Author: bm7514 <bm7514@glados.cs.rit.edu>
+Date:   Thu May 4 19:45:15 2017 -0400
+
+    extra credit completed. some problem in else case and write function. Write funtion not writing in file at all
+
+commit 0426bcf8caa48d7dbf68fc20473fccae3b0cf3af
+Author: bm7514 <bm7514@glados.cs.rit.edu>
+Date:   Tue May 2 13:17:46 2017 -0400
+
+    normal functionality done. Need to comment. And if there is time need to do extra credit after csci320 project
+
+commit 3f1d9bfb2f9d4009a3da576ec9a6c6ec2bd36896
+Author: bm7514 <bm7514@glados.cs.rit.edu>
+Date:   Mon May 1 14:20:39 2017 -0400
+
+    size and section function done.
+
+commit 31f78b18a6330d5c258ea956e40dc84a1329c559
+Author: bm7514 <bm7514@glados.cs.rit.edu>
+Date:   Mon May 1 12:53:53 2017 -0400
+
+    section print complete

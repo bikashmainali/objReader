@@ -1,0 +1,41 @@
+###### file of example commands for obj files
+###### edit obj file
+section text
+0,10
+0,4:b
+0,4:h
+0,4:w
+size
+section rdata
+0
+0,4:b
+0,4:h
+0,4:w
+section reltab
+1
+size
+section reftab
+0
+size
+section strings
+7,10:b
+section symtab
+size
+1:h
+4
+section rdata
+0:b=0x7f
+0:h
+###### edit string and show in symbol table
+section symtab
+5
+section strings
+0,6:b
+0=0x41525241
+4:b=0x59
+0,6:b
+section symtab
+5
+###### finished edit obj WITHOUT SAVING. 'yes' discards edits.
+quit
+yes

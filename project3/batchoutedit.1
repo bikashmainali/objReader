@@ -1,0 +1,38 @@
+###### edit executable .out file WITHOUT SAVING
+section text
+0x00400000,10
+0x00400000,4:b
+0x00400000,4:h
+0x00400000,4:w
+400064
+0x400064
+0x400064,12:h
+size
+section rdata
+0x10000000
+0x10000000,4:b
+0x10000000,4:h
+0x10000000,4:w
+section reltab
+1
+size
+section reftab
+0
+size
+###### edit string and show in symbol table
+section symtab
+size
+2:h
+5
+section strings
+0,6:b
+0=0x41525241
+4:b=0x59
+0,6:b
+section symtab
+5
+###### finished edit executable .out file WITHOUT SAVING
+section text
+0x400064=0
+quit
+yes

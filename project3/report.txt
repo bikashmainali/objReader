@@ -1,0 +1,43 @@
+Project3: Load Module Editor Feedback
+
+	========================================
+	insert your answers in plain text below the question.
+	========================================
+
+What is your name?
+name: BIKASH MAINALI
+login ID: BM7514
+
+========================================
+Did you attempt the extra credit bonus part of the assignment?
+YES!!
+
+========================================
+What did you learn from doing this assignment?
+Use of sscanf and to debug(all project).
+
+========================================
+How many hours did you work on this project?
+more than 2 days (48 hours or more)
+
+========================================
+How many hours did you originally estimate you would need for this project?
+24 hours
+
+========================================
+What was easy about this assignment?
+nothing... I hate low level stuff. binary IO
+
+========================================
+What gave you problems/troubles?
+write function which is writing in differnt file.
+
+========================================
+What can the instructors do to improve this assignment?
+give less time for project 1 and 2(two are three week each) and more time for this project. As at this time we have other suff due too. Mechanics due today. Database Management project due tomorrow. SWEN 261 final project due monday at 5. Database Management presentating, SWEN 261 presentation this monday. Paper for gen-ed calss and all.
+project 1 and 2 were easy so less time can be given to that project. 
+
+========================================
+What would you have liked to do in this assignment that wasn't part of it?
+NOTHING ! . HATE LOW LEVEL OR THIS BINARY STUFF.
+
